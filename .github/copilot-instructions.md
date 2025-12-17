@@ -2,16 +2,19 @@
 
 ## Project Overview
 
-This repository manages blog posts for Qiita using [@qiita/qiita-cli](https://github.com/increments/qiita-cli). Posts are written in Markdown with specific frontmatter and synchronized to Qiita via CLI commands or GitHub Actions.
+This repository manages blog posts for Qiita using [@qiita/qiita-cli](https://github.com/increments/qiita-cli). Posts are written in Markdown with specific frontmatter and synchronized to Qiita via CLI commands.
 
 ## Directory Structure & Workflows
 
 - **`drafts/`**: Work-in-progress articles not yet published (not synced to Qiita)
+  - `ideas.md`: Blog ideas in Vietnamese - content focused on software philosophy, developer roles, AI impact, and project management
+  - `qiita-writing-instructions.md`: Qiita Markdown syntax reference and writing best practices
+  - Working draft articles (e.g., `developer-role-in-ai-era.md`)
 - **`public/`**: Published articles synced to Qiita
-  - `.remote/` folder is created by Qiita CLI (gitignored) - never edit
-- **`.github/workflows/publish.yml`**: Auto-publishes on push to main/master using `QIITA_TOKEN` secret
+  - `.remote/` folder is created by Qiita CLI (gitignored) - never manually edit
+- **Note**: No GitHub Actions workflow exists currently - publishing is manual via `npx qiita publish`
 
-**Critical**: Files in `public/` are two-way synced with Qiita. Always use `npx qiita pull` before editing to get latest remote changes.
+**Critical**: Files in `public/` are two-way synced with Qiita. Always run `npx qiita pull` before editing to get latest remote changes and avoid conflicts.
 
 ## Article Frontmatter (Required)
 
@@ -39,21 +42,26 @@ ignorePublish: false
 ## Essential Commands
 
 ```bash
-# Create new article (generates file in public/ with frontmatter)
+# Create new article (generates file in public/ with frontmatter template)
 npx qiita new <article-name>
 
-# Preview locally at http://localhost:8888
+# Preview locally at http://localhost:8888 (configured in qiita.config.json)
 npx qiita preview
 
-# Sync from Qiita to local (pulls remote changes)
+# Sync from Qiita to local (pulls remote changes) - ALWAYS run before editing public/ files
 npx qiita pull
 
-# Publish all public/ articles to Qiita
+# Publish all public/ articles to Qiita (creates or updates based on id field)
 npx qiita publish
 
-# Initial setup (required once, creates .qiita-token)
+# Initial setup (required once, creates .qiita-token file)
 npx qiita login
+
+# View all available commands
+npx qiita help
 ```
+
+**Preview configuration**: `qiita.config.json` sets `includePrivate: false`, `host: localhost`, `port: 8888`
 
 ## Content Guidelines
 
@@ -71,13 +79,14 @@ Refer to `drafts/qiita-writing-instructions.md` for:
 
 ## Common Patterns
 
-1. **New article workflow**: `npx qiita new` → edit in `drafts/` → move to `public/` when ready → `npx qiita publish`
-2. **Editing existing**: `npx qiita pull` first → edit → commit → auto-publishes via GitHub Actions
-3. **Preview before publish**: Always run `npx qiita preview` to check rendering locally
-4. **Bilingual content**: Support both Vietnamese (ideas/planning) and English/Japanese (articles)
+1. **New article workflow**: Create with `npx qiita new <name>` in `public/` → edit → preview with `npx qiita preview` → publish with `npx qiita publish`
+   - Alternatively: Draft in `drafts/` first → move to `public/` when ready → publish
+2. **Editing existing**: **CRITICAL** - run `npx qiita pull` first to sync remote changes → edit file → preview → publish → commit to git
+3. **Draft workflow**: Work in `drafts/` folder - files here are NOT synced to Qiita, allowing safe iteration before publication
+4. **Bilingual workflow**: Vietnamese for ideation (`drafts/ideas.md`), English/Japanese for final articles
 
-## GitHub Actions Setup
+## Git Workflow
 
-The workflow requires `QIITA_TOKEN` secret in repository settings. Get token from: https://qiita.com/settings/tokens/new
-
-Required permissions: `read_qiita` and `write_qiita`
+- Only `node_modules/` and `public/.remote/` are gitignored
+- All articles in both `drafts/` and `public/` are committed to version control
+- **No automated publishing** - manual `npx qiita publish` required after editing `public/` files
